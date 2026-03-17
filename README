@@ -1,0 +1,97 @@
+*****************************************************************************
+*                                                                           *
+* SPKRID, Copyright (C) 2002 A.Sankaranarayanan.                            *
+*                                                                           *
+* README file for the Speaker Identification System source distribution.    *
+* Notes on system requirements, compilation, and execution.                 *
+*                                                                           *
+* Last modified on April 26, 2002.                                          *
+*                                                                           *
+*****************************************************************************
+
+
+ * Table of contents * 
+-----------------------
+  1. What is SPKRID ?  
+  2. Obtaining SPKRID  
+  3. Building SPKRID   
+  4. Running SPKRID    
+  5. About me          
+-----------------------
+
+
+1. What is SPKRID ?
+--------------------
+    SPKRID is a text-dependent Speaker Identification System, developed as
+an undergraduate project at the University of Mumbai. SPKRID is written
+entirely in C++ (with a few C modules), most of which is ANSI compatible.
+It is a highly modular and extensible system. As of now, SPKRID can run only
+on the 32-bit Windows platform.
+
+
+2. Obtaining SPKRID
+--------------------
+    SPKRID is distributed under the GNU General Public License (see the
+accompanying file COPYING). SPKRID is available either in source form or
+as pre-built binaries for the Win32 platform. In case you did not receive
+the source code, you can download it free of charge from my home page
+http://www.geocities.com/sankaraonline/
+
+
+3. Building SPKRID
+-------------------
+    SPKRID is highly modular and ANSI compliant to a large extent, but the
+user interface and audio components are system dependent. Thus, the system
+compiles and runs correctly only on Win32 systems. It is a straightforward
+exercise to replace the system dependent modules with those appropriate for
+other platforms. The current source distribution compiles correctly with
+any 32-bit Windows C++ compiler that supports all routines in CONIO.H. It
+has been tested with Borland C++ 5.5 for Win32 (free command line tools).
+You will also require a sound card, speakers and microphone along and the
+appropriate Windows drivers installed (make sure it works in Windows). Make
+sure that you have sufficient disk space (about 5 MB is sufficient for a
+small system).
+
+    A MAKEFILE is included with the distribution to automate the build
+process. To build the source, follow these steps:
+
+a) Unzip the archive to a folder, say C:\SPKRID. This creates a subdirectory
+   called SRC within SPKRID, which contains the source and support files.
+
+b) Make sure you have BCC32 5.5 installed and that it works properly (you
+   can get BCC32 5.5 free from Borland's website: http://www.borland.com/).
+
+c) Switch to the SRC folder. Here you will find a couple of C++ files, a
+   folder called 'classes' and a 'makefile'. If you want to use a different
+   compiler or change other options, edit the 'makefile'.
+
+d) Type 'make' at the command prompt. This compiles SPKRID, and creates the
+   desired path structure. Under default conditions, a folder 'BIN' is
+   created under SPKRID; this contains the executable files.
+
+e) Type 'cd..\bin' to switch to the 'BIN' folder. You can now run SPKRID.
+
+
+4. Running SPKRID
+------------------
+    SPKRID consists of two independent modules:
+
+a) ADMINCP: This is the Administrator Control Panel, from which profiles can
+   be managed. Users can be added, removed, viewed, and profiles can be
+   imported/exported from/to other databases.
+
+b) USERAPP: This is the User Module, which performs the actual identification
+   activity. Automatic identification or Manual Verification are possible.
+
+   To run these modules, type 'admincp' or 'userapp' at the command prompt
+in the 'BIN' folder. The modules are menu driven and easy to use.
+
+
+5. About me
+------------
+    I have just completed my final year of Electronics and Telecom. Engg.
+at the University of Mumbai, and this system was developed as my final-year
+project. Send your comments/suggestions/improved code to
+total_nerd@hotmail.com.
+
+******************************* README.TXT **********************************

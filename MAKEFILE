@@ -1,0 +1,171 @@
+#****************************************************************************
+#                                                                           *
+# Makefile for building the administrator and user modules of the Speaker   *
+# Identification Project.                                                   *
+#                                                                           *
+# Tested with Borland C++ 5.5 (http://www.borland.com/)                     *
+#                                                                           *
+# Last modified on April 26, 2002.                                          *
+#                                                                           *
+#****************************************************************************
+
+.autodepend
+
+TARGET = ..\bin                         # where the EXEs go
+COMPILER = bcc32
+DEBUGOPT = -v
+OBJECT = -c
+ANSI = -A
+
+all: admincp.exe userapp.exe            # build both modules
+    if not exist $(TARGET)\nul mkdir $(TARGET)
+    if not exist $(TARGET)\profiles\nul mkdir $(TARGET)\profiles
+    if not exist $(TARGET)\uidata\nul mkdir $(TARGET)\uidata
+    if not exist $(TARGET)\uidata\menus\nul mkdir $(TARGET)\uidata\menus
+    if not exist $(TARGET)\uidata\dialogs\nul mkdir $(TARGET)\uidata\dialogs
+    if not exist $(TARGET)\uidata\audio\nul mkdir $(TARGET)\uidata\audio
+
+    copy *.exe $(TARGET)
+    copy README $(TARGET)
+    copy COPYING $(TARGET)
+    copy classes\uinterface\audio\*.wav $(TARGET)\uidata\audio
+    copy classes\uinterface\menugeneric\adminmainmenu\*.dlg $(TARGET)\uidata\dialogs
+    copy classes\uinterface\menugeneric\adminmainmenu\*.mnu $(TARGET)\uidata\menus
+    copy classes\uinterface\menugeneric\usermainmenu\*.dlg $(TARGET)\uidata\dialogs
+    copy classes\uinterface\menugeneric\usermainmenu\*.mnu $(TARGET)\uidata\menus
+    if exist *.tds del *.tds
+    if exist *.exe del *.exe
+
+#****************************************************************************
+#                   Build the Administrator Control Panel                   *
+#****************************************************************************
+admincp.exe: admincp.obj adminmainmenu.obj menugeneric.obj dialogbox.obj\
+    infobox.obj speechprofile.obj profilemanager.obj silenceremover.obj\
+    winwavereader.obj medianfilter.obj lpanalyzer.obj linearpredictor.obj\
+    pitchdetector.obj pitchextractor.obj impulsegenerator.obj firfilter.obj\
+    signal.obj waveletanalyzer.obj daub2analyzer.obj downsampler.obj\
+    readkey.obj drawbox.obj expand.obj audioreader.obj playaudio.obj\
+    audiowriter.obj wavepcmreader.obj winwavewriter.obj wavereader.obj
+
+    $(COMPILER) -v admincp.obj adminmainmenu.obj menugeneric.obj dialogbox.obj\
+    infobox.obj speechprofile.obj profilemanager.obj silenceremover.obj\
+    winwavereader.obj medianfilter.obj lpanalyzer.obj linearpredictor.obj\
+    pitchdetector.obj pitchextractor.obj impulsegenerator.obj firfilter.obj\
+    signal.obj waveletanalyzer.obj daub2analyzer.obj downsampler.obj\
+    readkey.obj drawbox.obj expand.obj audioreader.obj audiowriter.obj\
+    wavepcmreader.obj playaudio.obj winwavewriter.obj wavereader.obj
+
+#****************************************************************************
+#                    Build the User Application Module                      *
+#****************************************************************************
+userapp.exe: userapp.obj usermainmenu.obj menugeneric.obj dialogbox.obj\
+    infobox.obj speechprofile.obj profilemanager.obj silenceremover.obj\
+    winwavereader.obj medianfilter.obj lpanalyzer.obj linearpredictor.obj\
+    pitchdetector.obj pitchextractor.obj impulsegenerator.obj firfilter.obj\
+    signal.obj waveletanalyzer.obj daub2analyzer.obj downsampler.obj\
+    readkey.obj drawbox.obj expand.obj audioreader.obj playaudio.obj\
+    winwavewriter.obj wavereader.obj wavepcmreader.obj audiowriter.obj
+
+    $(COMPILER) -v userapp.obj usermainmenu.obj menugeneric.obj dialogbox.obj\
+    infobox.obj speechprofile.obj profilemanager.obj silenceremover.obj\
+    winwavereader.obj medianfilter.obj lpanalyzer.obj linearpredictor.obj\
+    pitchdetector.obj pitchextractor.obj impulsegenerator.obj firfilter.obj\
+    signal.obj waveletanalyzer.obj daub2analyzer.obj downsampler.obj\
+    readkey.obj drawbox.obj expand.obj audioreader.obj playaudio.obj\
+    winwavewriter.obj wavereader.obj wavepcmreader.obj audiowriter.obj
+
+admincp.obj: admincp.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) admincp.cpp
+
+userapp.obj: userapp.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) userapp.cpp
+
+adminmainmenu.obj: classes/uinterface/menugeneric/adminmainmenu/adminmainmenu.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/menugeneric/adminmainmenu/adminmainmenu.cpp
+
+usermainmenu.obj: classes/uinterface/menugeneric/usermainmenu/usermainmenu.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/menugeneric/usermainmenu/usermainmenu.cpp
+
+menugeneric.obj: classes/uinterface/menugeneric/menugeneric.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/menugeneric/menugeneric.cpp
+
+dialogbox.obj: classes/uinterface/dialogbox/dialogbox.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/dialogbox/dialogbox.cpp
+
+infobox.obj: classes/uinterface/infobox/infobox.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/infobox/infobox.cpp
+
+speechprofile.obj: classes/speechprofile/speechprofile.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/speechprofile/speechprofile.cpp
+
+profilemanager.obj: classes/profilemanager/profilemanager.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/profilemanager/profilemanager.cpp
+
+silenceremover.obj: classes/silenceremover/silenceremover.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/silenceremover/silenceremover.cpp
+
+winwavereader.obj: classes/audioreader/winwavereader/winwavereader.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/audioreader/winwavereader/winwavereader.cpp
+
+medianfilter.obj: classes/filter/median/medianfilter.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/filter/median/medianfilter.cpp
+
+lpanalyzer.obj: classes/lpanalyzer/lpanalyzer.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/lpanalyzer/lpanalyzer.cpp
+
+linearpredictor.obj: classes/lpanalyzer/lpredictor/linearpredictor.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/lpanalyzer/lpredictor/linearpredictor.cpp
+
+pitchdetector.obj: classes/pitch/rgold/pitchdetector.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/pitch/rgold/pitchdetector.cpp
+
+pitchextractor.obj: classes/pitch/rgold/pitchextractor/pitchextractor.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/pitch/rgold/pitchextractor/pitchextractor.cpp
+
+impulsegenerator.obj: classes/pitch/rgold/impulsegenerator/impulsegenerator.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/pitch/rgold/impulsegenerator/impulsegenerator.cpp
+
+firfilter.obj: classes/filter/fir/firfilter.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/filter/fir/firfilter.cpp
+
+waveletanalyzer.obj: classes/waveletbox/analyzer/waveletanalyzer.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/waveletbox/analyzer/waveletanalyzer.cpp
+
+daub2analyzer.obj: classes/waveletbox/analyzer/daub2/daub2analyzer.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/waveletbox/analyzer/daub2/daub2analyzer.cpp
+
+downsampler.obj: classes/waveletbox/analyzer/downsampler/downsampler.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/waveletbox/analyzer/downsampler/downsampler.cpp
+
+audioreader.obj: classes/audioreader/audioreader.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/audioreader/audioreader.cpp
+
+audiowriter.obj: classes/audiowriter/audiowriter.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/audiowriter/audiowriter.cpp
+
+signal.obj: classes/signal/signal.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/signal/signal.cpp
+
+readkey.obj: classes/uinterface/console/readkey.c
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/console/readkey.c
+
+expand.obj: classes/uinterface/console/expand.c
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) $(ANSI) classes/uinterface/console/expand.c
+
+drawbox.obj: classes/uinterface/console/drawbox.c
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/uinterface/console/drawbox.c
+
+playaudio.obj: classes/audiowriter/playaudio.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/audiowriter/playaudio.cpp
+
+winwavewriter.obj: classes/audiowriter/winwavewriter/winwavewriter.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/audiowriter/winwavewriter/winwavewriter.cpp
+
+wavereader.obj: classes/audioreader/wavereader/wavereader.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/audioreader/wavereader/wavereader.cpp
+
+wavepcmreader.obj: classes/audioreader/wavereader/pcm/wavepcmreader.cpp
+    $(COMPILER) $(DEBUGOPT) $(OBJECT) classes/audioreader/wavereader/pcm/wavepcmreader.cpp
+
+clean:
+    if exist *.obj del *.obj            # clear all intermediate files
