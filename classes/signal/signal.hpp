@@ -35,7 +35,7 @@
 #ifndef __SIGNAL_HPP
 #define __SIGNAL_HPP                    // protect against double inclusion
 
-#include <stdio.h>
+#include <vector>
 
 #define  FRAME_SIZE   1000              // length of one frame of samples
 #define  SAMPLE_SIZE  sizeof(float)     // size in bytes of a sample
@@ -52,17 +52,8 @@ enum SignalAccessMode {                 // access modes for Signal object
 
 class Signal {
 private:
-    static unsigned int UseCount;       // for creating unique tempfiles
-    static unsigned int InUse;          // for resetting UseCount
-
-    float *Sig;                         // buffer for samples
-    float *WriteBuffer;                 // write buffer accumulates samples
-    unsigned int FrameStart;            // start address for every frame
-    unsigned int NSamples;              // total number of samples
-    unsigned int WriteBufPtr;           // write buffer pointer
+    std::vector<float> Samples;         // contiguous in-memory samples
     SignalAccessMode Mode;              // checks read or write mode
-    char FileName[20];                  // name of tempfile
-    FILE *TempFile;                     // tempfile pointer
 
 public:
     Signal (void);
@@ -74,7 +65,7 @@ public:
     void Dump (char *DumpFileName);     // dumps signal to file (debugging)
 
     void AddSample (float Sample)
-        throw (SignalException);        // add a sample to tempfile
+        throw (SignalException);        // add a sample to the signal
 
     float operator[] (unsigned int Index)
         throw (SignalException);        // overloaded [] retrieves a sample
