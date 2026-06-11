@@ -35,6 +35,8 @@
 #ifndef __CONSOLE_HPP
 #define __CONSOLE_HPP
 
+#include "conio_compat.h"
+
 #define    REVERSE_VIDEO    ((LIGHTGRAY << 4) | BLACK)
 #define    NORMAL_VIDEO     ((BLACK << 4) | LIGHTGRAY)
 

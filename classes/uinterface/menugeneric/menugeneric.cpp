@@ -35,7 +35,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <conio.h>
+#include "../console/conio_compat.h"
 
 #include "menugeneric.hpp"
 #include "../console/console.hpp"
@@ -64,7 +64,7 @@ MenuGeneric::MenuGeneric (char *MenuName, unsigned int Y,
 
     fclose (MenuFile);
 
-    TextBuffer = new char [(MaxChoice + 2) * (ChoiceLen + 2) * 2];
+    TextBuffer = new char [(MaxChoice + 2) * (ChoiceLen + 2) * sizeof (chtype)];
     gettext (Left, Top, Left + ChoiceLen + 1,
         Top + MaxChoice + 1, TextBuffer);
 }

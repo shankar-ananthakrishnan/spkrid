@@ -34,7 +34,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <conio.h>
+#include "../console/conio_compat.h"
 
 #include "../console/console.hpp"
 #include "../console/keycode.hpp"
@@ -112,7 +112,7 @@ char **DialogBox::Engage (void) {
     RelY = new unsigned int [NPrompts];
     RelX = new unsigned int [NPrompts];
 
-    TextBuffer = new char [(Height + 1) * (Width + 1) * 2];
+    TextBuffer = new char [(Height + 1) * (Width + 1) * sizeof (chtype)];
     gettext (Left, Top, Left + Width, Top + Height, TextBuffer);
     DrawBox (Top, Left, Top + Height, Left + Width);
     textattr (REVERSE_VIDEO);

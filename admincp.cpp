@@ -33,14 +33,15 @@
 //***************************************************************************
 
 #include <stdio.h>
-#include <conio.h>
+#include <string.h>
+#include "classes/uinterface/console/conio_compat.h"
 
 #include "classes/globalconstants.hpp"
 #include "classes/signal/signal.hpp"
-#include "classes/audioreader/winwavereader/winwavereader.hpp"
+#include "classes/audioreader/alsawavereader/alsawavereader.hpp"
 #include "classes/silenceremover/silenceremover.hpp"
 #include "classes/audiowriter/playaudio.hpp"
-#include "classes/speechprofile/speechprofile.cpp"
+#include "classes/speechprofile/speechprofile.hpp"
 #include "classes/uinterface/console/keycode.hpp"
 #include "classes/uinterface/console/console.hpp"
 #include "classes/uinterface/infobox/infobox.hpp"
@@ -63,6 +64,11 @@ int main (void) {
     bool InsuffAudio;
     PersonalInfo UserInfo;
 
+    initscr ();
+    cbreak ();
+    noecho ();
+    keypad (stdscr, TRUE);
+
     clrscr ();
     textattr (REVERSE_VIDEO);
     clreol ();
@@ -80,9 +86,10 @@ int main (void) {
         delete Prompt;
         if (Key == KEY_ESCAPE) {
             clrscr ();
+            endwin ();
             return (1);
         }
-    
+
         Prompt = new InfoBox (" InfoBox ", 10, 12, 16, 75);
         Prompt->WriteText ("The program will now take a sample of the ambient "
             "noise level. Please make sure "
@@ -93,14 +100,15 @@ int main (void) {
         delete Prompt;
         if (Key == KEY_ESCAPE) {
             clrscr ();
+            endwin ();
             return (1);
         }
-    
+
         Status = new InfoBox (" InfoBox ", 10, 28, 14, 50);
         Status->MoveCursor (2, 2);
         Status->WriteText ("Sampling silence...");
     
-        SReader = new WinWaveReader (AUDIO_SAMPLE_RATE, 0.20);
+        SReader = new ALSAWaveReader (AUDIO_SAMPLE_RATE, 0.20);
         Signal& Silence = SReader->AudioData ();
         delete Status;
     
@@ -117,6 +125,7 @@ int main (void) {
     
         if (Key == KEY_ESCAPE) {
             delete SReader;
+            endwin ();
             return (1);
         }
     
@@ -128,7 +137,7 @@ int main (void) {
         delete SReader;
     
         do {
-            Reader = new WinWaveReader (AUDIO_SAMPLE_RATE, 5.0);
+            Reader = new ALSAWaveReader (AUDIO_SAMPLE_RATE, 5.0);
             Signal& Audio = Reader->AudioData ();
             ClippedAudio = new Signal;
             Clipper->ClipSilence (Audio, *ClippedAudio);
@@ -184,6 +193,7 @@ int main (void) {
             ReadKey ();
             delete Prompt;
             clrscr ();
+            endwin ();
             return (1);
         }
     }
@@ -193,6 +203,7 @@ int main (void) {
     delete Admin;
 
     clrscr ();
+    endwin ();
     return (0);
 }
 

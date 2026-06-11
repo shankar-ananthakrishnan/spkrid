@@ -32,12 +32,17 @@
 //                                                                          *
 //***************************************************************************
 
-#include <conio.h>
+#include "classes/uinterface/console/conio_compat.h"
 #include "classes/uinterface/console/console.hpp"
 #include "classes/uinterface/menugeneric/usermainmenu/usermainmenu.hpp"
 
 int main (void) {
     MenuGeneric *User;
+
+    initscr ();
+    cbreak ();
+    noecho ();
+    keypad (stdscr, TRUE);
 
     clrscr ();
     textattr (REVERSE_VIDEO);
@@ -50,6 +55,7 @@ int main (void) {
     delete User;
 
     clrscr ();
+    endwin ();
     return (0);
 }
 

@@ -36,7 +36,7 @@
 #include <string.h>
 
 #include "../../../globalconstants.hpp"
-#include "../../../audioreader/winwavereader/winwavereader.hpp"
+#include "../../../audioreader/alsawavereader/alsawavereader.hpp"
 #include "../../../audiowriter/playaudio.hpp"
 #include "../../../silenceremover/silenceremover.hpp"
 #include "../../../speechprofile/speechprofile.hpp"
@@ -104,7 +104,7 @@ void UserMainMenu::Execute (void) {
         Status->MoveCursor (2, 2);
         Status->WriteText ("Sampling silence...");
 
-        SReader = new WinWaveReader (AUDIO_SAMPLE_RATE, 0.20);
+        SReader = new ALSAWaveReader (AUDIO_SAMPLE_RATE, 0.20);
         Signal& Silence = SReader->AudioData ();
         delete Status;
 
@@ -133,7 +133,7 @@ void UserMainMenu::Execute (void) {
         delete SReader;
 
         do {
-            Reader = new WinWaveReader (AUDIO_SAMPLE_RATE, 5.0);
+            Reader = new ALSAWaveReader (AUDIO_SAMPLE_RATE, 5.0);
             Signal& Audio = Reader->AudioData ();
             ClippedAudio = new Signal;
             Clipper->ClipSilence (Audio, *ClippedAudio);

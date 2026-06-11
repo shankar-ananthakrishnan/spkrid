@@ -1,0 +1,177 @@
+CHANGE.LOG -- SPKRID Linux/GCC Port
+====================================
+Date: 2026-03-18
+
+
+OVERVIEW
+--------
+Ported SPKRID from Windows + Borland C++ 5.5 to Debian 13 + GCC. The project
+has no external DSP dependencies; all changes are confined to the platform
+interface layers (audio I/O, console UI, build system).
+
+Prerequisites: g++ make libncurses-dev libasound2-dev
+
+
+FILES CREATED
+-------------
+
+classes/audioreader/alsawavereader/alsawavereader.hpp
+classes/audioreader/alsawavereader/alsawavereader.cpp
+    New class ALSAWaveReader : public AudioReader. Linux replacement for
+    WinWaveReader. Uses snd_pcm_open() in SND_PCM_STREAM_CAPTURE mode,
+    16-bit signed LE, mono, interleaved access. Reads AudioLength samples
+    via snd_pcm_readi(), normalises each to float (sample / 32768.0), and
+    stores in AudioSignal. Throws ARX_NONEXISTENT if device open fails.
+    Constructor signature matches WinWaveReader:
+        ALSAWaveReader(unsigned int SampleRate, float Length)
+
+classes/audiowriter/alsawavewriter/alsawavewriter.hpp
+classes/audiowriter/alsawavewriter/alsawavewriter.cpp
+    New class ALSAWaveWriter : public AudioWriter. Linux replacement for
+    WinWaveWriter. Uses snd_pcm_open() in SND_PCM_STREAM_PLAYBACK mode.
+    Converts float samples back to signed short (clamped to [-1, 1] then
+    scaled by 32767), writes via snd_pcm_writei(), drains and closes.
+    Throws AWX_NONEXISTENT if device open fails.
+    Constructor signature matches WinWaveWriter:
+        ALSAWaveWriter(unsigned int SampleRate, unsigned short Channels)
+
+classes/uinterface/console/conio_compat.h
+    ncurses compatibility header replacing Borland <conio.h>. Provides:
+      - Colour constants: BLACK, BLUE, GREEN, ... WHITE (0-15)
+      - Cursor type constants: _NOCURSOR, _NORMALCURSOR, _SOLIDCURSOR
+      - Inline wrappers: clrscr, clreol, gotoxy, wherex, wherey, cputs,
+        putch, highvideo, normvideo, _setcursortype
+      - textattr(): maps REVERSE_VIDEO to A_REVERSE, else clears it
+      - Declarations for gettext() and puttext()
+      - Enum NCURSES_KEY_BACKSPACE / _HOME / _END / _ENTER: freezes the
+        ncurses KEY_* integer values before keycode.hpp overwrites the same
+        macro names with Borland scan-code values. An enum is used (not
+        #define) so the values are captured at definition time and are
+        unaffected by the later macro redefinitions.
+
+classes/uinterface/console/conio_compat.cpp
+    Implements gettext() and puttext() using ncurses mvinch()/mvaddch().
+    Buffer layout is chtype[] (one cell per element), laid out row-major.
+    Coordinates follow the 1-based conio convention.
+
+GNUmakefile
+    New Linux/GCC build file (original MAKEFILE left intact for reference).
+    Compiler: g++ / gcc. Flags: -std=c++14 -Wall -I.
+    Link flags: -lm -lncurses -lasound
+    Targets: bin/admincp and bin/userapp (no .exe extension).
+    Object list replaces winwavereader.o / winwavewriter.o with
+    alsawavereader.o / alsawavewriter.o, and adds conio_compat.o.
+    Post-build step creates bin/{profiles,uidata/{menus,dialogs,audio}}
+    and copies *.wav, *.mnu, *.dlg resources into place.
+    Usage: make -f GNUmakefile
+
+
+FILES MODIFIED
+--------------
+
+classes/signal/signal.cpp (line 56)
+    Replaced non-standard Borland/MSVC extension:
+        itoa(UseCount, Number, 10);
+    with standard C:
+        snprintf(Number, sizeof(Number), "%d", UseCount);
+
+classes/globalconstants.hpp (lines 64-67)
+    Replaced Windows path separators with POSIX forward slashes:
+        "profiles\\"     ->  "profiles/"
+        "uidata\\menus\\"    ->  "uidata/menus/"
+        "uidata\\dialogs\\"  ->  "uidata/dialogs/"
+        "uidata\\audio\\"    ->  "uidata/audio/"
+
+classes/uinterface/console/console.hpp
+    Added #include "conio_compat.h" so that LIGHTGRAY and BLACK are defined
+    before the REVERSE_VIDEO / NORMAL_VIDEO macros that use them.
+
+classes/uinterface/console/readkey.c
+    Rewrote for ncurses. Key changes:
+      - Removed #include <conio.h>; added #include "conio_compat.h"
+      - ReadKey(): replaced two-byte Borland getch() scheme with a single
+        wgetch(stdscr) call followed by a switch that maps ncurses KEY_*
+        constants to the existing SPKRID keycode.h values:
+            KEY_UP    -> KEY_UP_ARROW    KEY_DOWN  -> KEY_DN_ARROW
+            KEY_LEFT  -> KEY_LT_ARROW   KEY_RIGHT -> KEY_RT_ARROW
+            NCURSES_KEY_HOME  -> KEY_HOME
+            NCURSES_KEY_END   -> KEY_END
+            KEY_DC    -> KEY_DELETE
+            NCURSES_KEY_BACKSPACE / 8  -> KEY_BACKSPACE
+            '\t'      -> KEY_TAB        KEY_BTAB  -> KEY_CTRL_TAB
+            '\r'/'\n'/NCURSES_KEY_ENTER -> KEY_ENTER
+            27        -> KEY_ESCAPE
+        NCURSES_KEY_* aliases (enum values) are used in switch cases where
+        keycode.h has overwritten the ncurses macro names with Borland values,
+        to avoid duplicate-case compiler errors.
+      - ReadString(): unchanged in logic; getch() calls are now routed
+        through ReadKey() as before.
+
+classes/uinterface/console/drawbox.c
+    Rewrote for ncurses. Key changes:
+      - Removed #include <conio.h>; added #include "conio_compat.h"
+      - Replaced CP437 box-drawing byte literals and gotoxy()/cputs() with
+        direct mvaddch() calls using ncurses ACS line-drawing characters:
+            ACS_ULCORNER  ACS_URCORNER  ACS_LLCORNER  ACS_LRCORNER
+            ACS_HLINE     ACS_VLINE
+      - Interior of the box is blanked with mvaddch(' ') on each row.
+      - refresh() called once at the end.
+
+classes/uinterface/menugeneric/menugeneric.cpp
+    - Replaced #include <conio.h> with #include "../console/conio_compat.h"
+    - TextBuffer allocation: changed multiplier from 2 to sizeof(chtype)
+      so the buffer is large enough for the chtype values stored by
+      gettext()/puttext().
+
+classes/uinterface/infobox/infobox.cpp
+    - Replaced #include <conio.h> with #include "../console/conio_compat.h"
+    - TextBuffer allocation: changed multiplier from 2 to sizeof(chtype).
+
+classes/uinterface/dialogbox/dialogbox.cpp
+    - Replaced #include <conio.h> with #include "../console/conio_compat.h"
+    - TextBuffer allocation: changed multiplier from 2 to sizeof(chtype).
+
+classes/uinterface/menugeneric/adminmainmenu/adminmainmenu.cpp
+    - Replaced #include winwavereader.hpp with alsawavereader.hpp
+    - Replaced all WinWaveReader instantiations with ALSAWaveReader.
+
+classes/uinterface/menugeneric/usermainmenu/usermainmenu.cpp
+    - Replaced #include winwavereader.hpp with alsawavereader.hpp
+    - Replaced all WinWaveReader instantiations with ALSAWaveReader.
+
+classes/audiowriter/playaudio.cpp
+    - Replaced #include winwavewriter.hpp with alsawavewriter.hpp
+    - Replaced WinWaveWriter with ALSAWaveWriter inside the
+      #ifdef AUDIO_PROMPTS guard (guard remains disabled by default).
+
+admincp.cpp
+    - Replaced #include <conio.h> with #include "classes/uinterface/console/conio_compat.h"
+    - Replaced #include winwavereader.hpp with alsawavereader.hpp
+    - Replaced all WinWaveReader instantiations with ALSAWaveReader.
+    - Changed #include "classes/speechprofile/speechprofile.cpp" to
+      #include "classes/speechprofile/speechprofile.hpp". The original
+      code included the .cpp file directly (a Borland workaround); GCC's
+      linker rejected the resulting duplicate symbol definitions.
+    - Added #include <string.h> to compensate for the above (strcpy/strcat
+      were previously pulled in transitively through the .cpp include).
+    - Added ncurses initialisation at the top of main():
+          initscr(); cbreak(); noecho(); keypad(stdscr, TRUE);
+    - Added endwin() before every return statement in main().
+
+userapp.cpp
+    - Replaced #include <conio.h> with #include "classes/uinterface/console/conio_compat.h"
+    - Added ncurses initialisation at the top of main():
+          initscr(); cbreak(); noecho(); keypad(stdscr, TRUE);
+    - Added endwin() before the return statement in main().
+
+
+NOTES
+-----
+- All C++ files compiled with -std=c++14 to permit the dynamic exception
+  specifications (throw(...)) used throughout the codebase, which were
+  removed in C++17.
+- The Windows audio files (winwavereader.cpp, winwavewriter.cpp) are left
+  in place and unmodified; they are simply no longer referenced or compiled.
+- AUDIO_PROMPTS remains disabled (#define commented out in playaudio.cpp).
+  To enable spoken prompts, uncomment that line and ensure ALSA playback
+  works for the target device.

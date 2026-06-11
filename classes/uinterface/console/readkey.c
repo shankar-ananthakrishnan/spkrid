@@ -20,22 +20,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston,                   *
  * MA  02111-1307, USA.                                                     *
  *                                                                          *
- * My e-mail address is: total_nerd@hotmail.com.                            *
- *                                                                          *
  *                                                                          *
  * READKEY.C                                                                *
  *                                                                          *
  * Routines for reading data from the keyboard.                             *
- * Non-portable routines (not ANSI C compliant).                            *
- * User interface component for the Speaker Identification Project.         *
+ * Rewritten for ncurses (Linux port).                                      *
  *                                                                          *
  * Last modified on April 18, 2002.                                         *
  *                                                                          *
  ****************************************************************************/
 
-#include <conio.h>
 #include <string.h>
-
+#include "conio_compat.h"
 #include "keycode.h"
 
 #define    TRUE    1
@@ -43,13 +39,26 @@
 
 /****************************************************************************/
 unsigned int ReadKey (void) {
-    unsigned int Key;
+    int ch = wgetch (stdscr);
 
-    if ((Key = getch ()) == 0) {        /* extended key ? */
-        Key |= getch () << 8;           /* yes, read next code */
+    switch (ch) {
+        case KEY_UP:               return KEY_UP_ARROW;
+        case KEY_DOWN:             return KEY_DN_ARROW;
+        case KEY_LEFT:             return KEY_LT_ARROW;
+        case KEY_RIGHT:            return KEY_RT_ARROW;
+        case NCURSES_KEY_HOME:     return KEY_HOME;
+        case NCURSES_KEY_END:      return KEY_END;
+        case KEY_DC:               return KEY_DELETE;
+        case NCURSES_KEY_BACKSPACE:
+        case 8:                    return KEY_BACKSPACE;
+        case '\t':                 return KEY_TAB;
+        case KEY_BTAB:             return KEY_CTRL_TAB;
+        case '\r':
+        case '\n':
+        case NCURSES_KEY_ENTER:    return KEY_ENTER;
+        case 27:                   return KEY_ESCAPE;
+        default:                   return (unsigned int)ch;
     }
-
-    return (Key);
 }
 
 /****************************************************************************/

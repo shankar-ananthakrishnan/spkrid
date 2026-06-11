@@ -61,10 +61,10 @@
 // Relative system paths for various resources
 
 #define     DATABASE_INDEX      "profiles.ind"
-#define     DATABASE_PATH       "profiles\\"
-#define     MENU_PATH           "uidata\\menus\\"
-#define     DIALOG_PATH         "uidata\\dialogs\\"
-#define     AUDIO_PATH          "uidata\\audio\\"
+#define     DATABASE_PATH       "profiles/"
+#define     MENU_PATH           "uidata/menus/"
+#define     DIALOG_PATH         "uidata/dialogs/"
+#define     AUDIO_PATH          "uidata/audio/"
 
 #endif
 

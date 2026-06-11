@@ -20,51 +20,43 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston,                   *
  * MA  02111-1307, USA.                                                     *
  *                                                                          *
- * My e-mail address is: total_nerd@hotmail.com.                            *
- *                                                                          *
  *                                                                          *
  * DRAWBOX.C                                                                *
  *                                                                          *
- * Routine to draw a closed box on the screen using extended ASCII charact- *
- * ers. Non-portable routine (not ANSI C compliant). Works on Win/DOS.      *
- * User interface component of the Speaker Identification Project.          *
+ * Routine to draw a closed box on the screen using ncurses ACS characters. *
+ * Linux port of the original CP437-based implementation.                   *
  *                                                                          *
  * Last modified on March 8, 2002.                                          *
  *                                                                          *
  ****************************************************************************/
 
-#include <conio.h>
+#include "conio_compat.h"
 
 void DrawBox (unsigned int Top, unsigned int Left,
     unsigned int Bottom, unsigned int Right) {
     unsigned int X, Y;
-    unsigned int Width;
-    char Horz[81];
-    char Vert[81];
 
-    Width = Right - Left - 1;
-    Horz[Width + 2] = '\0';
+    /* top edge */
+    mvaddch (Top - 1, Left - 1, ACS_ULCORNER);
+    for (X = Left; X < Right; ++X)
+        mvaddch (Top - 1, X, ACS_HLINE);
+    mvaddch (Top - 1, Right - 1, ACS_URCORNER);
 
-    Horz[0] = 'Ú'; Horz[Width + 1] = '¿';
-    for (X = 1; X <= Width; ++X) Horz[X] = 'Ä';
-
-    Vert[0] = '³'; Vert[Width + 1] = '³';
-    for (X = 1; X <= Width; ++X) Vert[X] = ' ';
-    Vert[Width + 2] = '\0';
-
-    gotoxy (Left, Top);
-    cputs (Horz);
-
-    for (Y = Top + 1; Y < Bottom; ++Y) {
-        gotoxy (Left, Y);
-        cputs (Vert);
+    /* side edges and interior blank lines */
+    for (Y = Top; Y < Bottom; ++Y) {
+        mvaddch (Y, Left - 1, ACS_VLINE);
+        for (X = Left; X < Right; ++X)
+            mvaddch (Y, X, ' ');
+        mvaddch (Y, Right - 1, ACS_VLINE);
     }
 
-    Horz[0] = 'À'; Horz[Width + 1] = 'Ù';
-    gotoxy (Left, Bottom);
-    cputs (Horz);
+    /* bottom edge */
+    mvaddch (Bottom - 1, Left - 1, ACS_LLCORNER);
+    for (X = Left; X < Right; ++X)
+        mvaddch (Bottom - 1, X, ACS_HLINE);
+    mvaddch (Bottom - 1, Right - 1, ACS_LRCORNER);
 
-    return;
+    refresh ();
 }
 
 /******************************* DRAWBOX.C **********************************/

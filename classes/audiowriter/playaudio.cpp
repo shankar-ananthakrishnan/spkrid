@@ -33,7 +33,7 @@
 //***************************************************************************
 
 #include "../audioreader/wavereader/pcm/wavepcmreader.hpp"
-#include "winwavewriter/winwavewriter.hpp"
+#include "alsawavewriter/alsawavewriter.hpp"
 
 // #define     AUDIO_PROMPTS
 
@@ -41,10 +41,10 @@
 void PlayAudio (char *Source) {
 #ifdef AUDIO_PROMPTS
     WaveReader *WAVESrc;
-    WinWaveWriter *WAVEDst;
+    ALSAWaveWriter *WAVEDst;
 
     WAVESrc = new WavePCMReader (Source);
-    WAVEDst = new WinWaveWriter (WAVESrc->SampleRate (),
+    WAVEDst = new ALSAWaveWriter (WAVESrc->SampleRate (),
         WAVESrc->ChannelCount ());
 
     Signal& Audio = WAVESrc->AudioData ();      // read source audio

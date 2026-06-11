@@ -32,7 +32,7 @@
 //                                                                          *
 //***************************************************************************
 
-#include <conio.h>
+#include "../console/conio_compat.h"
 #include <string.h>
 
 #include "../console/console.hpp"
@@ -42,7 +42,7 @@
 InfoBox::InfoBox (char *Title, unsigned int Y1, unsigned int X1,
     unsigned int Y2, unsigned int X2) : Top(Y1), Left(X1), Bottom(Y2),
     Right(X2), Y(1), X(1) {
-    TextBuffer = new char [(Bottom - Top + 1) * (Right - Left + 1) * 2];
+    TextBuffer = new char [(Bottom - Top + 1) * (Right - Left + 1) * sizeof (chtype)];
     gettext (Left, Top, Right, Bottom, TextBuffer);     // save old text
 
     DrawBox (Top, Left, Bottom, Right);     // draw the box
